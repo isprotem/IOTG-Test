@@ -1,0 +1,162 @@
+.navbar-custom {
+    background-color:#A9A9A9;
+    color:#ffffff;
+    border-radius:0;
+}
+
+
+
+.navbar-custom > li > a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+
+.navbar-custom > li > a:hover {
+    background-color: #111;
+}
+
+.navbar-custom  a {
+	color : white;
+}
+
+.navbar-custom .navbar-nav {
+	
+	min-height: 30px;
+	margin-bottom: 5px;
+}
+.navbar-custom .navbar-nav > li > a {
+    color: white;
+}
+.navbar-custom .navbar-nav > .active > a, .navbar-nav > .active > a:hover, .navbar-nav > .active > a:focus {
+    color: white;
+    background-color:transparent;
+}
+.navbar-custom .navbar-brand {
+    color:#eeeeee;
+}
+.container-menu {
+	margin-left: 15px;
+	width:98%;
+}
+
+/* .grid-table table   {
+	width: 98%;
+	border: 1px solid red;
+	
+} */
+
+.grid-table  {
+	margin:0px;padding:0px;
+	/* width:100%;
+	box-shadow: 10px 10px  5px #888888; */
+	border:1px solid #000000;
+	
+	/* -moz-border-radius-bottomleft:0px;
+	-webkit-border-bottom-left-radius:0px;
+	border-bottom-left-radius:0px;
+	
+	-moz-border-radius-bottomright:0px;
+	-webkit-border-bottom-right-radius:0px;
+	border-bottom-right-radius:0px;
+	
+	-moz-border-radius-topright:0px;
+	-webkit-border-top-right-radius:0px;
+	border-top-right-radius:0px;
+	
+	-moz-border-radius-topleft:0px;
+	-webkit-border-top-left-radius:0px;
+	border-top-left-radius:0px; */
+}
+.grid-table table{
+    border-collapse: collapse;
+    border-spacing: 0;
+	
+	height:100%;
+	margin:0px;
+	padding:0px;
+}/* .grid-table  tr:last-child td:last-child {
+	-moz-border-radius-bottomright:0px;
+	-webkit-border-bottom-right-radius:0px;
+	border-bottom-right-radius:0px;
+}
+.grid-table  table tr:first-child td:first-child {
+	-moz-border-radius-topleft:0px;
+	-webkit-border-top-left-radius:0px;
+	border-top-left-radius:0px;
+}
+.grid-table  table tr:first-child td:last-child {
+	-moz-border-radius-topright:0px;
+	-webkit-border-top-right-radius:0px;
+	border-top-right-radius:0px;
+}.grid-table  tr:last-child td:first-child{
+	-moz-border-radius-bottomleft:0px;
+	-webkit-border-bottom-left-radius:0px;
+	border-bottom-left-radius:0px;
+}.grid-table  tr:hover td{
+	
+} */
+.grid-table table tr:nth-child(odd){ 
+	background-color:#e5e5e5; 
+}
+.grid-table table tr:nth-child(even)    {
+	background-color:#ffffff; 
+}
+
+.life-cycle-table table tr td th{
+	padding: 5px;
+}
+
+
+/* 
+.grid-table  td{
+	vertical-align:middle;
+	border:1px solid #000000;
+	border-width:0px 1px 1px 0px;
+	text-align:left;
+	padding:7px;
+	font-size:10px;
+	font-family:Arial;
+	font-weight:normal;
+	color:#000000;
+}.grid-table  tr:last-child td{
+	border-width:0px 1px 0px 0px;
+}.grid-table  tr td:last-child{
+	border-width:0px 0px 1px 0px;
+}.grid-table  tr:last-child td:last-child{
+	border-width:0px 0px 0px 0px;
+} */
+/* .grid-table  tr:first-child td{
+	background:-o-linear-gradient(bottom, #999999 5%, #3f007f 100%);	
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #999999), color-stop(1, #3f007f) );
+	background:-moz-linear-gradient( center top, #999999 5%, #3f007f 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr="#999999", endColorstr="#3f007f");	
+	background: -o-linear-gradient(top,#999999,3f007f);
+
+	background-color:#999999;
+	border:0px solid #000000;
+	text-align:center;
+	border-width:0px 0px 1px 1px;
+	font-size:14px;
+	font-family:Arial;
+	font-weight:bold;
+	color:#ffffff;
+}
+.grid-table  tr:first-child:hover td{
+	background:-o-linear-gradient(bottom, #999999 5%, #3f007f 100%);	
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #999999), color-stop(1, #3f007f) );
+	background:-moz-linear-gradient( center top, #999999 5%, #3f007f 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr="#999999", endColorstr="#3f007f");	
+	background: -o-linear-gradient(top,#999999,3f007f);
+
+	background-color:#999999;
+}
+.grid-table  tr:first-child td:first-child{
+	border-width:0px 0px 1px 0px;
+}
+.grid-table  tr:first-child td:last-child{
+	border-width:0px 0px 1px 1px;
+} */

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="custom/favicon/favicon.ico">
+
+<title>First Responder Dashboard</title>
+
+<!-- Bootstrap core CSS -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="bootstrap/css/bootstrap-table.css">
+<!-- Custom styles for this template -->
+<link href="custom/css/first-responder.css" rel="stylesheet">
+
+<script src="JQuery/jquery-1.11.3.min.js"></script>
+</head>
+<body  ng-app="grsApp">
+
+	<!-- <div th:replace="fragments/header :: header" /> -->
+	<!-- <div ng-include="fragments/header.html"></div> -->
+	<div>
+		<img src="images/logo.png" style="width: 100%">
+	</div>
+
+	<div class="navbar-custom" role="navigation">
+		<div class="container container-menu">
+
+
+			<div id="navbar" class="collapse navbar-collapse navbar-custom">
+				<ul class="nav nav-tabs">
+					<li><a href="index">Home</a></li>
+					<li><a href="#gLoc">Incident Management</a></li>
+					<li><a href="#">Historical Data</a></li>
+					<li><a href="#">Alerts</a></li>
+					<li ><a href="responders">Responders</a></li>
+		            <li><a  href="#">Exit Procedures</a></li>
+		            <li><a  href="#">Medical Personal</a></li>
+		            <li><a  href="#">Support Personal</a></li>
+		            <li><a  href="equipments">Equipment</a></li>
+		            <li><a  href="#">Operational Status</a></li>
+		            <li class="active"><a  href="lifeCycleManagement">Lifecycle Management</a></li>
+				</ul>
+			</div>
+
+		</div>
+	</div>
+
+<div style="width: 100%;  background-color: red; text-align: center; color: white;font-weight: bold">
+		ALERT: High Level of Phosgene Detected at Emergency #2
+</div>
+
+	<div  ng-controller="LifeCycleManagementCtrl" style="border: 4px; margin-left: 15px; margin-right: 15px;">
+
+		<table class="life-cycle-table table" border="1">
+			<tr>
+				<th>&nbsp;</th>
+			</tr>
+			<tr>
+				<td>
+					<table width="90%">
+						<tr>
+							<th colspan="4"><p align="center">Incident Details</p></th> 
+						</tr>
+						<tr>	
+							<td>
+								Start Time
+							</td>
+							<td>
+								<input  ng-model="incidentInfo.incident.startTime"  />
+							</td>
+							<td>
+								End Time
+							</td>
+							<td>
+								<input ng-model="incidentInfo.incident.endTime" />
+							</td>
+						</tr>
+						<tr>	
+							<td>
+								Date
+							</td>
+							<td>
+								<input ng-model="incidentInfo.incident.incidentDate" />
+							</td>
+							<td>
+								Type
+							</td>
+							<td>
+								<input ng-model="incidentInfo.incident.incidentType"/>
+							</td>
+						</tr>
+						
+						<tr>	
+							<td colspan="1">
+								Incident Commander
+							</td>
+							<td colspan="3">
+								<input ng-model="incidentInfo.incident.incidentCommander" style="width: 321px; "/>
+							</td>
+							 
+						</tr>
+					
+					</table>
+				</td>
+			</tr>
+			<tr>
+
+				<td>
+					<table width="90%">
+						<tr>
+							<th colspan="6"><p align="center">Location Details</p></th> 
+						</tr>
+						<tr>	
+							<td>
+								Address:
+							</td>
+							<td colspan="5">
+								<input ng-model="ncidentInfo.location.address" style="width: 569px; "/>
+							</td>
+						</tr>
+
+						<tr>	
+							<td>
+								City:
+							</td>
+							<td >
+								<input ng-model="ncidentInfo.location.city"/>
+							</td>
+							<td>
+								State:
+							</td>
+							<td >
+								<input ng-model="ncidentInfo.location.state"/>
+							</td>
+							<td>
+								Zip Code:
+							</td>
+							<td >
+								<input ng-model="ncidentInfo.location.zipCode"/>
+							</td>
+						</tr>		
+						
+						<tr>	
+							<td>
+								Country:
+							</td>
+							<td >
+								<input ng-model="ncidentInfo.location.country"/>
+							</td>
+							<td>
+								Latitude:
+							</td>
+							<td >
+								<input ng-model="ncidentInfo.location.latitude"/>
+							</td>
+							<td>
+								Longitude:
+							</td>
+							<td >
+								<input ng-model="ncidentInfo.location.longitude"/>
+							</td>
+						</tr>						
+					</table>
+				</td>
+			</tr>
+
+		</table>
+
+	</div>
+
+	<!-- Bootstrap core JavaScript
+    ================================================== -->
+	<!-- Placed at the end of the document for better performance -->
+
+	<script src="bootstrap/js/bootstrap.min.js"></script>
+	<script src="bootstrap/js/bootstrap-table.js"></script>
+	<script src="bootstrap/js/validator.js"></script>
+	<script src="bootstrap/js/moment.js"></script>
+	<script src="bootstrap/js/bootstrap-datetimepicker.js"></script>
+
+	<!-- <script src="custom/js/home.js"></script> -->
+	<script src="angular/angular.min.js"></script>
+	<script src="js/controllers.js"></script>
+</body>
+</html>

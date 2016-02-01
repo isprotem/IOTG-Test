@@ -1,0 +1,63 @@
+	
+ <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+  
+    
+ <persistence-unit name="rdbms_pu">      
+        <provider>com.impetus.kundera.KunderaPersistence</provider>     
+       <!--  <jar-file>target/gs-rest-service-0.1.0.jar</jar-file>
+          <class>firstResponderModel.User</class>-->
+            <properties> 
+            <property name="kundera.client.lookup.class" value="com.impetus.client.rdbms.RDBMSClientFactory" />
+                        <!--<property name="hibernate.hbm2ddl.auto" value="create" />-->
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect" />
+            <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver" />
+            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/test" />
+            <property name="hibernate.connection.username" value="root" />
+            <property name="hibernate.connection.password" value="" />
+            <property name="hibernate.current_session_context_class"    value="org.hibernate.context.internal.ThreadLocalSessionContext" />
+        <property name="kundera.ddl.auto.prepare" value="update" />
+        </properties>
+    </persistence-unit> 
+    
+    
+    
+    
+    <persistence-unit name="cassandra_pu">
+    
+  
+        <provider>com.impetus.kundera.KunderaPersistence</provider>  
+         <!--  <jar-file>target/gs-rest-service-0.1.0.jar</jar-file>
+       <class>firstResponderModel.GeographicLocation</class>  -->
+       
+        <properties>          
+        
+            <property name="kundera.nodes" value="127.0.0.1"/>
+            <property name="kundera.port" value="9160"/>
+            <property name="kundera.keyspace" value="firstrespondermodel"/>
+            <property name="kundera.dialect" value="cassandra"/>
+            
+            
+            <property name="kundera.client.lookup.class" value="com.impetus.client.cassandra.thrift.ThriftClientFactory" /> 
+            
+            <!--  <property name="kundera.client.lookup.class" value="com.impetus.client.cassandra.pelops.PelopsClientFactory" /> 
+           <property name="kundera.client.lookup.class" value="com.impetus.kundera.client.cassandra.dsdriver.DSClientFactory" />
+           -->
+           
+               <property name="kundera.cache.provider.class" value="com.impetus.kundera.cache.ehcache.EhCacheProvider"/>
+            <property name="kundera.cache.config.resource" value="/ehcache-test.xml"/>                  
+        <property name="kundera.ddl.auto.prepare" value="update" />
+          
+        </properties>       
+       
+    </persistence-unit>
+   
+   
+   
+    
+</persistence>

@@ -1,0 +1,1181 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+    
+    <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+	<link rel="icon" href="custom/favicon/favicon.ico">
+	
+    <title>First Responder Dashboard</title>
+
+    <!-- Bootstrap core CSS -->
+   	<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" >
+	<link rel="stylesheet" href="bootstrap/css/bootstrap-table.css">
+    <!-- Custom styles for this template -->
+   <link href="custom/css/home.css" rel="stylesheet">
+   
+   <script src="JQuery/jquery-1.11.3.min.js"></script>
+   <script type="text/javascript">
+    	
+    	
+		var servletName = "http://localhost:8080/";  //URL for Rest calls
+		var $table = $('#table'),
+			$remove = $('#remove'),
+			selections = [];
+		var selectValues =  "";
+		
+		//Load geographic location table on form load
+		$(document).ready(function(){
+				getGeographicLocations();
+				getFirstResponders();
+				getIncidents();
+				getSensorData();
+		 });
+ 
+		
+		
+		
+		
+ 	
+ 		$(function () {
+     	
+ 			
+		    	//Update the selected item list each time the record is checked or unchecked
+				$('#table').on('check.bs.table uncheck.bs.table ' + 'check-all.bs.table uncheck-all.bs.table', function () {
+							$('#remove').prop('disabled', !$('#table').bootstrapTable('getSelections').length);
+		         			selections = getIdSelectionsForGeographicLocation('#table');
+		         });
+		         
+		    	
+				$('#table2').on('check.bs.table uncheck.bs.table ' + 'check-all.bs.table uncheck-all.bs.table', function () {
+					$('#remove2').prop('disabled', !$('#table2').bootstrapTable('getSelections').length);
+         			selections = getIdSelectionsForFirstResponder('#table2');
+         		});
+		    	
+				$('#table3').on('check.bs.table uncheck.bs.table ' + 'check-all.bs.table uncheck-all.bs.table', function () {
+					$('#remove3').prop('disabled', !$('#table3').bootstrapTable('getSelections').length);
+         			selections = getIdSelectionsForIncident('#table3');
+         		});
+				
+		    	
+		    	
+		    	//for analysing all the events on table
+		    	$('#table').on('all.bs.table', function (e, name, args) {
+		         			console.log(name, args);
+		     	});
+		    	
+		    	$('#table2').on('all.bs.table', function (e, name, args) {
+         			console.log(name, args);
+     			});
+		    	
+		    	$('#table3').on('all.bs.table', function (e, name, args) {
+         			console.log(name, args);
+     			});
+		    	
+		    	
+		    	
+		    	//Remove the selected records from the table on click of delete button
+		    	$('#remove').click(function () {
+		    		         //get the list of selected ids
+					         var ids = getIdSelectionsForGeographicLocation('#table');
+					         $('#table').bootstrapTable('remove', {
+					             field: 'geographicLocationID',
+					             values: ids
+		         			 }); 
+		        
+		                     //Iterate over the ids and delete the corresponding record
+					         for(var i in ids) {
+					         	 //Delete Rest call
+					         	 $.ajax({
+										  type: "DELETE",
+										  url: servletName+"deleteGeographicLocation/"+ids[i],
+										  contentType: 'application/json',
+										  dataType: 'json',
+										  success: function(data) {
+											
+											  console.log("Geographic Location(s) deleted.")
+											
+										  },
+										  error: function(response) {
+											  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+										  }
+										}); //end of ajax rest call
+					              
+					         }
+		                    //disable the button after deleting the record
+		         			$('#remove').prop('disabled', true);
+		        });
+		    	
+		    	
+		    	
+		    	
+		    	$('#remove2').click(function () {
+   		         //get the list of selected ids
+			         var ids = getIdSelectionsForFirstResponder('#table2');
+   		            
+			         $('#table2').bootstrapTable('remove', {
+			             field: 'firstResponderID',
+			             values: ids
+        			 }); 
+                     
+                    //Iterate over the ids and delete the corresponding record
+			         for(var i in ids) {
+			         	 //Delete Rest call
+			         	 $.ajax({
+								  type: "DELETE",
+								  url: servletName+"/deleteFirstResponder/"+ids[i],
+								  contentType: 'application/json',
+								  dataType: 'json',
+								  success: function(data) {
+									
+									  console.log("First Responder(s) deleted.")
+									
+								  },
+								  error: function(response) {
+									  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+								  }
+								}); //end of ajax rest call
+			              
+			         }
+                   //disable the button after deleting the record
+        			$('#remove2').prop('disabled', true);
+       			});
+		    	
+		    	
+		    	$('#remove3').click(function () {
+	   		         //get the list of selected ids
+				         var ids = getIdSelectionsForIncident('#table3');
+	   		            
+				         $('#table3').bootstrapTable('remove', {
+				             field: 'incidentID',
+				             values: ids
+	        			 }); 
+	                     
+	                    //Iterate over the ids and delete the corresponding record
+				         for(var i in ids) {
+				         	 //Delete Rest call
+				         	 $.ajax({
+									  type: "DELETE",
+									  url: servletName+"/deleteIncident/"+ids[i],
+									  contentType: 'application/json',
+									  dataType: 'json',
+									  success: function(data) {
+										
+										  console.log("Incident(s) deleted.")
+										
+									  },
+									  error: function(response) {
+										  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+									  }
+									}); //end of ajax rest call
+				              
+				         }
+	                   //disable the button after deleting the record
+	        			$('#remove3').prop('disabled', true);
+	       			});
+		    	
+		    	
+		    	
+		    	
+		    	
+		    	
+		    	//On Form submit
+		    	$('#gLocForm').on('submit', function(e){
+		    		e.preventDefault();
+		    		 var form = this;
+		    	     var payload = convertFormToJSON(form);
+		             
+		    	     
+		           
+		            // Rest call for persisting the data
+		            $.ajax({
+						  type: "POST",
+						  url: servletName+"createGeographicLocation/",
+						  contentType: 'application/json',
+						  data: JSON.stringify(payload),
+						  dataType: 'json',
+						  success: function(data) {
+							
+							  console.log("Geographic Location(s) created.")
+							  $('#gLocModal').modal('hide');
+							  location.reload();
+							  $('#navbar a:[href="#gLoc"]').tab('show');
+							  
+						  },
+						  error: function(response) {
+							  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+						  }
+						}); //end of ajax rest call
+		        });
+		    	
+		    	
+		    	$('#firstResponderForm').on('submit', function(e){
+		    		e.preventDefault();
+		    		 var form = this;
+		    	     var payload = convertFormToJSON(form);
+		    	     
+		    	   
+		    	     payload = JSON.stringify(payload);
+		    	    
+		    	     console.log(payload);
+		            // Rest call for persisting the data
+		            $.ajax({
+						  type: "POST",
+						  url: servletName+"createFirstResponder/",
+						  contentType: 'application/json',
+						  data: payload,
+						  dataType: 'json',
+						  success: function(data) {
+							 
+							  console.log("First Responder(s) created.")
+							  $('#firstResponderModal').modal('hide');
+							  location.reload();
+							  //$('#navbar a:[href="#firstResponder"]').tab('show');
+							  $('.nav-tabs a[href="#firstResponder"]').tab('show');
+							  
+						  },
+						  error: function(response) {
+							  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+						  }
+						}); //end of ajax rest call
+		        });
+		    	
+		    	
+		    	
+		    	$('#incidentForm').on('submit', function(e){
+		    		e.preventDefault();
+		    		 var form = this;
+		    	     var payload = convertFormToJSON(form);
+		    	     
+		    	   
+		    	     payload = JSON.stringify(payload);
+		    	   
+		    	     console.log("payload");
+		    	     console.log(payload);
+		            // Rest call for persisting the data
+		            $.ajax({
+						  type: "POST",
+						  url: servletName+"createIncident/",
+						  contentType: 'application/json',
+						  data: payload,
+						  dataType: 'json',
+						  success: function(data) {
+							 
+							  console.log("Incident(s) created.")
+							  $('#incidentModal').modal('hide');
+							  location.reload();
+							  
+						  },
+						  error: function(response) {
+							  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+						  }
+						}); //end of ajax rest call
+		        });
+		    	
+		    	
+		    	
+		    	
+		    	
+		    	
+		    	
+		    	
+		    	//Enable autofocus elements of modal
+		    	$('.modal').on('shown.bs.modal', function() {
+		    		  $(this).find('[autofocus]').focus();
+		    		});
+		    	
+		    	//var selectValues = { "1": "test 1", "2": "test 2" };
+		    	
+		    	
+		    	$.ajax({
+					
+					  type: "GET",
+					  url: servletName+"getAllGeographicLocations",
+					  contentType: 'application/json',
+					  dataType: 'json',
+					  success: function(data) {
+						//  console.log(data);
+						  selectValues =data;
+						 
+						$.each(selectValues, function(key, value) {   
+						
+				    	     $('#glocation')
+				    	          .append($('<option>', { key :  JSON.stringify(value)})
+				    	          .text(JSON.stringify(value))); 
+				    	     
+				    	     $('#glocation2')
+			    	          .append($('<option>', { key :  JSON.stringify(value)})
+			    	          .text(JSON.stringify(value))); 
+				    	});
+				    	
+					  },
+					  error: function(response) {
+						  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+					  }
+				}); 
+		    	
+		    	
+		    	$.ajax({
+					
+					  type: "GET",
+					  url: servletName+"getAllIncidents",
+					  contentType: 'application/json',
+					  dataType: 'json',
+					  success: function(data) {
+						//  console.log(data);
+						  selectValues =data;
+						 
+						$.each(selectValues, function(key, value) {   
+						
+				    	     $('#respondsTo')
+				    	          .append($('<option>', { key :  JSON.stringify(value)})
+				    	          .text(JSON.stringify(value))); 
+				    	     
+				    	    
+				    	});
+				    	
+					  },
+					  error: function(response) {
+						  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+					  }
+				}); 
+		    	
+		    	
+		    	
+		    	
+		    	$('#datetimepicker1').datetimepicker({
+		    		
+		    		format : 'MM/DD/YYYY HH:mm:ss'
+		        });
+		    	$('#datetimepicker2').datetimepicker({
+		    		
+		    		format : 'MM/DD/YYYY HH:mm:ss'
+		        });
+		    	
+				$('#datetimepicker3').datetimepicker({
+		    		
+		    		format : 'MM/DD/YYYY'
+		        });
+		    	
+		});
+ 	
+ 	    
+ 	
+		function getGeographicLocations() {
+			
+					var geographicLocations = "";
+					
+					//Ajax call to invoke REST API for retrieval of all records
+					$.ajax({
+				
+						  type: "GET",
+						  url: servletName+"getAllGeographicLocations",
+						  contentType: 'application/json',
+						  dataType: 'json',
+						  success: function(data) {
+							  geographicLocations =data;
+							  selectValues = data;
+							 $('#table').bootstrapTable({
+								    data: data
+								}); 
+							
+						  },
+						  error: function(response) {
+							  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+						  }
+				}); 
+					 return JSON.stringify(geographicLocations);
+		
+		}
+
+		function getFirstResponders() {
+			
+			var firstResponders = "";
+			
+			//Ajax call to invoke REST API for retrieval of all records
+			$.ajax({
+		
+				  type: "GET",
+				  url: servletName+"getAllFirstResponders",
+				  
+				  contentType: 'application/json',
+				  dataType: 'json',
+				  success: function(data) {
+					
+					 $('#table2').bootstrapTable({
+						    data: data
+						}); 
+				  },
+				  error: function(response) {
+					  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+				  }
+		}); 
+
+
+		}
+		
+		
+		function getIncidents() {
+			
+			
+			
+			//Ajax call to invoke REST API for retrieval of all records
+			$.ajax({
+		
+				  type: "GET",
+				  url: servletName+"getAllIncidents",
+				  
+				  contentType: 'application/json',
+				  dataType: 'json',
+				  success: function(data) {
+					
+					 $('#table3').bootstrapTable({
+						    data: data
+						}); 
+				  },
+				  error: function(response) {
+					  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+				  }
+		}); 
+
+
+		}
+		
+		
+		function getSensorData() {
+			
+			
+			
+			//Ajax call to invoke REST API for retrieval of all records
+			$.ajax({
+		
+				  type: "GET",
+				  url: servletName+"getAllOxygenSensorData",
+				  
+				  contentType: 'application/json',
+				  dataType: 'json',
+				  success: function(data) {
+					
+					 $('#table4').bootstrapTable({
+						    data: data
+						}); 
+				  },
+				  error: function(response) {
+					  alert('There was a problem connecting to the server. Please try again.\nError details: '+response);
+				  }
+		}); 
+
+
+		}
+		
+		
+		function responseHandler(res) {
+				    $.each(res.rows, function (i, row) {
+				        row.state = $.inArray(row.id, selections) !== -1;
+				    });
+				    return res;
+		}
+     
+     
+     
+     
+     
+		function getIdSelectionsForGeographicLocation(table) {
+		    return $.map($(table).bootstrapTable('getSelections'), function (row) {
+		    	
+		        return row.geographicLocationID;
+		    });
+		}
+     
+		
+		function getIdSelectionsForFirstResponder(table) {
+		    return $.map($(table).bootstrapTable('getSelections'), function (row) {
+		    	
+		        return row.firstResponderID;
+		    });
+		}
+     
+		
+		function getIdSelectionsForIncident(table) {
+		    return $.map($(table).bootstrapTable('getSelections'), function (row) {
+		    	
+		        return row.incidentID;
+		    });
+		}
+     
+		function getHeight() {
+		    return $(window).height() - $('h1').outerHeight(true);
+		}
+ 	
+		
+		
+		function convertFormToJSON(form){
+		    var a = jQuery(form).serializeArray();
+		    console.log("Form Serialized"+a);
+		    var o = {};
+		    
+		    /*
+		    var json = {};
+		    jQuery.each(array, function() {
+		        json[this.name] = this.value || '';
+		    });
+		    
+		    return json;
+		    */
+		    
+		    $.each(a, function() {
+		        if (o[this.name] !== undefined) {
+		            if (!o[this.name].push) {
+		                o[this.name] = [o[this.name]];
+		                
+		               
+		            }
+		           
+		            o[this.name].push(this.value || '');
+		        } else {
+		        	
+		        	 if(this.name=="glocation"||this.name=="respondsTo")
+				         {   
+				             var parsedJSON = JSON.parse(this.value);
+				             o[this.name] = parsedJSON;
+			             }
+		        	 else{
+		        		 	o[this.name] = this.value || '';
+		        	 }
+		        	 
+		           
+		        }
+		    });
+		    return o;
+		    
+		    
+		    
+		}
+		
+		function gLocIdFormatter(value, row){
+			
+			return row.glocation.geographicLocationID;
+		}
+		
+	    function gLocIdSensorFormatter(value, row){
+			
+			return row.locationOfDevice.geographicLocationID;
+		}
+		
+		function incidentIdFormatter(value, row){
+			
+			return row.respondsTo.incidentID;
+		}
+		
+		function parentSensorModuleIdFormatter(value, row){
+			
+			return row.parentSensorModule.sensorModuleID;
+		}
+	    
+	    
+	    
+	      
+	    
+	    
+	    
+	    
+		
+		function dateFormatter(value, row){
+			var date= new Date(value);
+			return date;
+		}
+		
+		
+		
+		
+		
+		
+    </script>
+   
+   
+  </head>
+
+  <body>
+
+   <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">FirstResponderDashboard</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#gLoc">Geographic Locations</a></li>
+            <li><a data-toggle="tab" href="#incidents">Incidents</a></li>
+            <li><a data-toggle="tab" href="#firstResponder">First Responders</a></li>
+            <li><a data-toggle="tab" href="#sensors">Sensors</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+	<div class="tab-content">
+		  <div id="gLoc" class="tab-pane fade in active">
+				    
+		    	
+							<div class="container">
+							 <div id="toolbar">
+							  <button id="add" class="btn btn-primary" data-toggle="modal" data-target="#gLocModal">
+							      Add
+						      </button>
+						      
+						       <button id="remove" class="btn btn-danger" disabled>
+						            <i class="glyphicon glyphicon-remove"></i> Delete
+						      </button>
+						      
+						      <!-- Modal -->
+						  <div class="modal fade" id="gLocModal" role="dialog">
+						    <div class="modal-dialog">
+						    
+						      <!-- Modal content-->
+						      <div class="modal-content">
+						        <div class="modal-header">
+						          <button type="button" class="close" data-dismiss="modal">&times;</button>
+						          <h4 class="modal-title">Add new Geographic Location</h4>
+						        </div>
+						        <div class="modal-body">
+						   
+						          
+						          
+						          <form role="form" id="gLocForm" data-toggle="validator">
+						            <div class="form-group">
+						              <label for="locationName" class="control-label"> Location Name</label>
+						              <input type="text" class="form-control" id="locationName" name="locationName" placeholder="Enter Location Name" required autofocus>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="address1">Address 1</label>
+						              <input type="text" class="form-control" id="address1" name="address1" placeholder="Enter Address 1" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="address2">Address 2</label>
+						              <input type="text" class="form-control" id="address2" name="address2" placeholder="Enter Address 2" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="address3">Address 3</label>
+						              <input type="text" class="form-control" id="address3" name="address3" placeholder="Enter Address 3" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="city">City</label>
+						              <input type="text" class="form-control" id="city" name="city" placeholder="Enter City" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						             <div class="form-group">
+						              <label for="state">State</label>
+						              <input type="text" class="form-control" id="state" name="state" placeholder="Enter State" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						             <div class="form-group">
+						              <label for="postalCode">Postal Code</label>
+						              <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="Enter Postal Code" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						             <div class="form-group">
+						              <label for="country">Country</label>
+						              <input type="text" class="form-control" id="country" name="country" placeholder="Enter Country" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						             <div class="form-group">
+						              <label for="latitude">Latitude</label>
+						              <input type="text" class="form-control" id="latitude" name="latitude" pattern="([-|+])?(\d*[.])?\d+" placeholder="Enter Latitude" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="longitude">Longitude</label>
+						              <input type="text" class="form-control" id="longitude" name="longitude" pattern="([-|+])?(\d*[.])?\d+" placeholder="Enter Longitude" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="altitude">Altitude</label>
+						              <input type="text" class="form-control" id="altitude" name="altitude" pattern="([-|+])?(\d*[.])?\d+" placeholder="Enter Altitude" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <button type="submit" class="btn btn-default btn-success btn-block"><span class="glyphicon glyphicon-ok"></span> Submit</button>
+						          </form>
+						        </div>
+						          
+						           <div class="modal-footer">
+						          <button type="submit" class="btn btn-default btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+						         
+						        </div>
+						         
+						      </div>
+						      
+						    </div>
+						  </div>
+						      
+						      
+						     
+						    </div>
+							 <table id="table"  data-toolbar="#toolbar"
+						           data-search="true"  data-show-refresh="true"
+						           data-show-columns="true"  data-id-field="geographicLocationID"
+						           data-pagination="true"   data-pagination="true"     
+						           data-page-list="[10, 25, 50, 100, ALL]"   data-side-pagination="client"
+						           data-response-handler="responseHandler"
+						           data-show-toggle="true" data-sort-name="geographicLocationID" data-sort-order="asc">
+							      
+							  <thead>
+						      <tr>
+						        <th data-field="rowState" data-checkbox="true">rowState</th>
+						        <th data-field="geographicLocationID" data-title="GeographicLocationID" data-sortable="true">geographicLocationID</th>
+						        <th data-field="locationName" data-title="Location Name" data-sortable="true">locationName</th>
+						        <th data-field="address1" data-title="Address 1" data-sortable="true">address1</th>
+						        <th data-field="address2" data-title="Address 2" data-sortable="true">address2</th>
+						        <th data-field="address3" data-title="Address 3" data-sortable="true">address3</th>
+						        <th data-field="city" data-title="City" data-sortable="true">city</th>
+						        <th data-field="state" data-title="State" data-sortable="true">state</th>
+						        <th data-field="postalCode" data-title="Postal Code" data-sortable="true">postalCode</th>
+						        <th data-field="country" data-title="Country" data-sortable="true">country</th>
+						        <th data-field="latitude" data-title="Latitude" data-sortable="true">latitude</th>
+						        <th data-field="longitude" data-title="Longitude" data-sortable="true">longitude</th>
+						        <th data-field="altitude" data-title="Altitude" data-sortable="true">altitude</th>
+						            
+						      </tr>
+						    </thead>
+							 
+						 </table>  
+
+		 </div>
+		    	
+		    
+		  </div>
+		  
+		  
+		   <div id="incidents" class="tab-pane fade">
+		    
+		    <div class="container">
+		    		
+		    		<div id="toolbar3">
+							  <button id="add3" class="btn btn-primary" data-toggle="modal" data-target="#incidentModal">
+							      Add
+						      </button>
+						      
+						       <button id="remove3" class="btn btn-danger" disabled>
+						            <i class="glyphicon glyphicon-remove"></i> Delete
+						      </button>
+		    		
+		    		
+		    			 <!-- Modal -->
+						    <div class="modal fade" id="incidentModal" role="dialog">
+						    <div class="modal-dialog">
+						    
+						     <!-- Modal content-->
+						      <div class="modal-content">
+						        <div class="modal-header">
+						          <button type="button" class="close" data-dismiss="modal">&times;</button>
+						          <h4 class="modal-title">Add new Incident</h4>
+						        </div>
+						        <div class="modal-body">
+						   
+						          
+						          
+						          <form role="form" id="incidentForm" data-toggle="validator">
+						            <div class="form-group">
+						              <label for="incidentStartTime" class="control-label"> Incident Start Time</label>
+						              <!--  <input type="text" class="form-control" id="incidentStartTime" name="incidentStartTime" placeholder="Enter Incident Start Time" required autofocus> -->
+						              
+						              
+						              <div class='input-group date' id='datetimepicker1'>
+						                  <input type='text' class="form-control" id="incidentStartTime" name="incidentStartTime" placeholder="Enter Incident Start Time" required autofocus/>
+						                  <span class="input-group-addon">
+						                        <span class="glyphicon glyphicon-calendar"></span>
+						                  </span>
+					                  </div>
+						              
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            <div class="form-group">
+						              <label for="incidentCloseTime">Incident Close Time</label>
+						             <!--  <input type="text" class="form-control" id="incidentCloseTime" name="incidentCloseTime" placeholder="Incident Close Time" required> -->
+						              
+						               <div class='input-group date' id='datetimepicker2'>
+						                  <input type='text' class="form-control" id="incidentCloseTime" name="incidentCloseTime" placeholder="Enter Incident Close Time" required />
+						                  <span class="input-group-addon">
+						                        <span class="glyphicon glyphicon-calendar"></span>
+						                  </span>
+					                  </div>
+						              
+						              
+						              <div class="help-block with-errors"></div>
+						            </div>
+						           
+						            
+						         
+						              
+						            <div class="form-group">
+									<label for="glocation">glocation</label>
+									  <select class="form-control" id="glocation2" name="glocation">
+									   
+									  </select>
+									</div>
+						            
+						             
+						            
+						            
+						            <button type="submit" class="btn btn-default btn-success btn-block"><span class="glyphicon glyphicon-ok"></span> Submit</button>
+						          </form>
+						        </div>
+						          
+						           <div class="modal-footer">
+						          <button type="submit" class="btn btn-default btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+						         
+						        </div>
+						      
+						         
+						      </div>
+						      
+						    
+						    
+						    
+		    		        </div>
+		    		        </div>
+		    		
+		    		</div>
+		    		
+		    		
+		    			<table id="table3"     data-toolbar="#toolbar3"
+						           data-search="true"  data-show-refresh="true"
+						           data-show-columns="true"  data-id-field="incidentID"
+						           data-pagination="true"   data-pagination="true"     
+						           data-page-list="[10, 25, 50, 100, ALL]"   data-side-pagination="client"
+						           data-response-handler="responseHandler"
+						           data-show-toggle="true" data-sort-name="incidentID" data-sort-order="asc">
+							      
+							  <thead>
+						      <tr>
+						        <th data-field="rowState" data-checkbox="true">rowState</th>
+						        <th data-field="incidentID" data-title="IncidentID" data-sortable="true">incidentID</th>
+						        <th data-field="incidentStartTime" data-title="Incident Start Time" data-formatter="dateFormatter" data-sortable="true">incidentStartTime</th>
+						        <th data-field="incidentCloseTime" data-title="Incident Close Time" data-formatter="dateFormatter" data-sortable="true">incidentCloseTime</th>
+						        
+						       <!--   <th data-field="glocation" data-title="Geographic Location" data-sortable="true">glocation</th> -->
+						        <th data-field="glocation.geographicLocationID" data-formatter="gLocIdFormatter">GeographicLocationID</th>
+						        
+						      </tr>
+						    </thead>
+							 
+						 </table>  
+		    
+		    </div>
+		  </div>
+		  
+		  
+		  
+		  <div id="firstResponder" class="tab-pane fade">
+		 
+			    <div class="container">
+			    	<div id="toolbar2">
+							  <button id="add2" class="btn btn-primary" data-toggle="modal" data-target="#firstResponderModal">
+							      Add
+						      </button>
+						      
+						       <button id="remove2" class="btn btn-danger" disabled>
+						            <i class="glyphicon glyphicon-remove"></i> Delete
+						      </button>
+						      
+						      <!-- Modal -->
+						    <div class="modal fade" id="firstResponderModal" role="dialog">
+						    <div class="modal-dialog">
+						    
+						      <!-- Modal content-->
+						      <div class="modal-content">
+						        <div class="modal-header">
+						          <button type="button" class="close" data-dismiss="modal">&times;</button>
+						          <h4 class="modal-title">Add new FirstResponder</h4>
+						        </div>
+						        <div class="modal-body">
+						   
+						          
+						          
+						          <form role="form" id="firstResponderForm" data-toggle="validator">
+						            <div class="form-group">
+						              <label for="personnelName" class="control-label"> Personnel Name</label>
+						              <input type="text" class="form-control" id="personnelName" name="personnelName" placeholder="Enter Personnel Name" required autofocus>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="personnelTitle">Personnel Title</label>
+						              <input type="text" class="form-control" id="personnelTitle" name="personnelTitle" placeholder="Enter Personnel Title" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            <div class="form-group">
+						              <label for="firstResponderName">First Responder Name</label>
+						              <input type="text" class="form-control" id="firstResponderName" name="firstResponderName" data-formatter="gLocIdFormatter" placeholder="Enter First Responder Name" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						             <div class="form-group">
+						              <label for="personnelAge">Personnel Age</label>
+						              <input type="text" class="form-control" id="personnelAge" name="personnelAge" pattern="\d+"    placeholder="Enter Personnel Age" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            
+						            
+						            
+						             <div class="form-group">
+									<label for="personnelGender">Personnel Gender</label>
+									  <select class="form-control" id="personnelGender" name="personnelGender">
+						                    <option value="Male">Male</option>
+						                    <option value="Female">Female</option>
+									  </select>
+									</div>
+						            
+						            
+						            
+						            
+						            <div class="form-group">
+						              <label for="personnelSSN">Personnel SSN</label>
+						              <input type="text" class="form-control" id="personnelSSN" name="personnelSSN"  placeholder="Enter Personnel SSN" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            
+						            <div class="form-group">
+						              <label for="address1">Address 1</label>
+						              <input type="text" class="form-control" id="address1" name="address1"  placeholder="Enter Address 1" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						             <div class="form-group">
+						              <label for="address2">Address 2</label>
+						              <input type="text" class="form-control" id="address2" name="address2"  placeholder="Enter Address 2" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						             <div class="form-group">
+						              <label for="address3">Address 3</label>
+						              <input type="text" class="form-control" id="address3" name="address3"  placeholder="Enter Address 3" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            <div class="form-group">
+						              <label for="city">City</label>
+						              <input type="text" class="form-control" id="city" name="city"  placeholder="Enter City" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            
+						            <div class="form-group">
+						              <label for="state">State</label>
+						              <input type="text" class="form-control" id="state" name="state"  placeholder="Enter State" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            
+						            <div class="form-group">
+						              <label for="postalCode">Postal Code</label>
+						              <input type="text" class="form-control" id="postalCode" name="postalCode"  placeholder="Enter Postal Code" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            <div class="form-group">
+						              <label for="country">Country</label>
+						              <input type="text" class="form-control" id="country" name="country"  placeholder="Enter Country" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						             <div class="form-group">
+						              <label for="phoneNumber">Phone Number</label>
+						              <input type="text" class="form-control" id="phoneNumber" name="phoneNumber"  placeholder="Enter Phone Number" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						           
+						            
+						             <div class="form-group">
+						               <label for="startDateWithCorporation">Start Date With Corporation</label>
+						              <div class='input-group date' id='datetimepicker3'>
+						                  <input type='text' class="form-control" id="startDateWithCorporation" name="startDateWithCorporation" placeholder="Enter Start Date With Corporation" required />
+						                  <span class="input-group-addon">
+						                        <span class="glyphicon glyphicon-calendar"></span>
+						                  </span>
+					                  </div>
+						              
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            
+						            <div class="form-group">
+						              <label for="positionTitle">Position Title</label>
+						              <input type="text" class="form-control" id="positionTitle" name="positionTitle"  placeholder="Enter Position Title" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            <div class="form-group">
+						              <label for="professionalSpeciality">Professional Speciality</label>
+						              <input type="text" class="form-control" id="professionalSpeciality" name="professionalSpeciality"  placeholder="Enter Professional Speciality" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            
+						            
+						            
+						            
+						            
+						            <div class="form-group">
+									<label for="isActive">Is Active?</label>
+									  <select class="form-control" id="isActive" name="isActive">
+						                    <option value="true">True</option>
+						                    <option value="false">False</option>
+									  </select>
+									</div>
+						            
+						            
+						          <!--  
+						            <div class="form-group">
+						              <label for="glocation">geographicLocationID</label>
+						              <input type="text" class="form-control" id="glocation" name="glocation" placeholder="Enter geographicLocationID" required>
+						              <div class="help-block with-errors"></div>
+						            </div>
+						            -->
+						              
+						            <div class="form-group">
+									<label for="glocation">glocation</label>
+									  <select class="form-control" id="glocation" name="glocation">
+									   
+									  </select>
+									</div>
+						            
+						             <div class="form-group">
+									<label for="respondsTo">respondsTo</label>
+									  <select class="form-control" id="respondsTo" name="respondsTo">
+									   
+									  </select>
+									</div>
+						            
+						            
+						            <button type="submit" class="btn btn-default btn-success btn-block"><span class="glyphicon glyphicon-ok"></span> Submit</button>
+						          </form>
+						        </div>
+						          
+						           <div class="modal-footer">
+						          <button type="submit" class="btn btn-default btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+						         
+						        </div>
+						      
+						         
+						      </div>
+						      
+						    </div>
+						  </div>
+						      
+						     
+						    </div>
+			    
+			    
+			    	 <table id="table2"  data-toolbar="#toolbar2"
+						           data-search="true"  data-show-refresh="true"
+						           data-show-columns="true"  data-id-field="firstResponderID"
+						           data-pagination="true"   data-pagination="true"     
+						           data-page-list="[10, 25, 50, 100, ALL]"   data-side-pagination="client"
+						           data-response-handler="responseHandler"
+						           data-show-toggle="true" data-sort-name="firstResponderID" data-sort-order="asc">
+							      
+							  <thead>
+						      <tr>
+						        <th data-field="rowState" data-checkbox="true">rowState</th>
+						        <th data-field="firstResponderID" data-title="FirstResponderID" data-sortable="true">firstResponderID</th>
+						        <th data-field="firstResponderName" data-title="First Responder Name" data-sortable="true">firstResponderName</th>
+						        <th data-field="personnelTitle" data-title="Personnel Title" data-sortable="true">personnelTitle</th>
+						        <th data-field="personnelName" data-title="Personnel Name" data-sortable="true">personnelName</th>
+						        <th data-field="personnelAge" data-title="Personnel Age" data-sortable="true">personnelAge</th>
+						        <th data-field="personnelGender" data-title="Personnel Gender" data-sortable="true">personnelGender</th>
+								<th data-field="address1" data-title="Address 1" data-sortable="true">address1</th>						        
+								<th data-field="address2" data-title="Address 2" data-sortable="true">address2</th>
+								<th data-field="address3" data-title="Address 3" data-sortable="true">address3</th>
+								<th data-field="city" data-title="City" data-sortable="true">city</th>
+								<th data-field="state" data-title="State" data-sortable="true">state</th>
+								<th data-field="postalCode" data-title="Postal Code" data-sortable="true">postalCode</th>
+								<th data-field="country" data-title="Country" data-sortable="true">country</th>
+								<th data-field="phoneNumber" data-title="Phone Number" data-sortable="true">phoneNumber</th>
+								<th data-field="startDateWithCorporation" data-title="Start Date With Corporation" data-sortable="true" data-formatter="dateFormatter">startDateWithCorporation</th>
+								<th data-field="positionTitle" data-title="Position Title" data-sortable="true">positionTitle</th>
+								<th data-field="professionalSpeciality" data-title="Professional Speciality" data-sortable="true">professionalSpeciality</th>
+								<th data-field="isActive" data-title="Is Active" data-sortable="true">isActive</th>
+
+						      
+						      
+						       <!--   <th data-field="glocation" data-title="Geographic Location" data-sortable="true">glocation</th> -->
+						        <th data-field="glocation.geographicLocationID" data-formatter="gLocIdFormatter">GeographicLocationID</th>
+						        <th data-field="respondsTo.incidentID" data-formatter="incidentIdFormatter">Responds To Incident</th>
+						      </tr>
+						    </thead>
+							 
+						 </table>  
+			    </div>
+		  </div>
+		 
+		  <div id="sensors" class="tab-pane fade">
+		    <h3>Oxygen Sensor</h3>
+		    <div class="container">
+		    
+			    	 <table id="table4"  
+						           data-search="true"  data-show-refresh="true"
+						           data-show-columns="true"  data-id-field="oxygenSensorDataID"
+						           data-pagination="true"   data-pagination="true"     
+						           data-page-list="[10, 25, 50, 100, ALL]"   data-side-pagination="client"
+						           data-response-handler="responseHandler"
+						           data-show-toggle="true" data-sort-name="oxygenSensorDataID" data-sort-order="asc">
+							      
+							  <thead>
+						      <tr>
+						       <!--   <th data-field="rowState" data-checkbox="true">rowState</th> -->
+						        <th data-field="oxygenSensorDataID" data-title="OxygenSensorDataID" data-sortable="true">oxygenSensorDataID</th>
+						        <th data-field="deviceID" data-title="Device ID" data-sortable="true">deviceID</th>
+						        <th data-field="deviceName" data-title="Device Name" data-sortable="true">deviceName</th>
+						        <th data-field="deviceVendor" data-title="Device Vendor" data-sortable="true">deviceVendor</th>
+						        <th data-field="deviceModel" data-title="Device Model" data-sortable="true">deviceModel</th>
+						        <th data-field="firmwareVersion" data-title="Firmware Version" data-sortable="true">firmwareVersion</th>
+						        <th data-field="timeStampOfMeasurement" data-title="Time Stamp Of Measurement" data-sortable="true" data-formatter="dateFormatter">timeStampOfMeasurement</th>
+						        <th data-field="oxygenConcentration" data-title="Oxygen Concentration" data-sortable="true">oxygenConcentration</th>
+						        <th data-field="oxygenConcentrationUnits" data-title="Oxygen Concentration Units" data-sortable="true">oxygenConcentrationUnits</th>
+						        <th data-field="locationOfDevice.geographicLocationID" data-title="Location Of Device" data-formatter="gLocIdSensorFormatter" data-sortable="true">locationOfDevice.geographicLocationID</th>
+						        <th data-field="parentSensorModule.sensorModuleID" data-title="Parent Sensor Module" data-formatter="parentSensorModuleIdFormatter" data-sortable="true">parentSensorModule.sensorModuleID</th>
+						      
+						     
+						      </tr>
+						    </thead>
+							 
+						 </table>  
+		    </div>
+		  </div>
+</div>
+
+
+   		
+  
+    
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document for better performance -->
+    
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="bootstrap/js/bootstrap-table.js"></script>
+    <script src="bootstrap/js/validator.js"></script>
+    <script src="bootstrap/js/moment.js"></script>
+    <script src="bootstrap/js/bootstrap-datetimepicker.js"></script>
+  
+   <!-- <script src="custom/js/home.js"></script> -->
+   
+  </body>
+</html>
